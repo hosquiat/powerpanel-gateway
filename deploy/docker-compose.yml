@@ -1,0 +1,39 @@
+# Run the gateway on the machine that has the CyberPower UPS plugged in,
+# then point the Home Assistant integration at this machine's IP:8099.
+#
+#   cd deploy
+#   export POWERPANEL_GATEWAY_API_TOKEN="$(openssl rand -hex 24)"   # protect it!
+#   docker compose up -d --build
+#
+# Mock mode (no UPS, to test the pipe end-to-end):
+#   POWERPANEL_GATEWAY_MOCK=1 docker compose up -d --build
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: powerpanel-gateway:real
+    container_name: powerpanel-gateway
+    environment:
+      # Set to 1 to run without a UPS. Default 0 = talk to the real UPS.
+      POWERPANEL_GATEWAY_MOCK: "${POWERPANEL_GATEWAY_MOCK:-0}"
+      POWERPANEL_GATEWAY_LOG_LEVEL: "INFO"
+      # STRONGLY recommended when exposing over the network (no Ingress here).
+      # The HA integration sends this as a bearer token.
+      POWERPANEL_GATEWAY_API_TOKEN: "${POWERPANEL_GATEWAY_API_TOKEN:-}"
+    ports:
+      - "8099:8099"
+    volumes:
+      - gateway-data:/data
+    # USB HID device the UPS exposes. Confirm the node on your host with
+    # `ls -l /dev/usb/hiddev*` (and `lsusb` to see the CyberPower device).
+    devices:
+      - "/dev/usb/hiddev0:/dev/usb/hiddev0"
+    # If pwrstatd cannot see the UPS with just the device above, some setups need
+    # broader access. Prefer adding specific devices first; privileged is a last
+    # resort:
+    # privileged: true
+    restart: unless-stopped
+
+volumes:
+  gateway-data:

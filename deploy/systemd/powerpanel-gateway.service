@@ -1,0 +1,42 @@
+# Host install (no Docker): run the gateway as a systemd service on the machine
+# that has the UPS + CyberPower PowerPanel installed natively.
+#
+# Setup:
+#   sudo apt install ./powerpanel_X.Y.Z_amd64.deb      # CyberPower PowerPanel
+#   sudo mkdir -p /opt/powerpanel-gateway && cd /opt/powerpanel-gateway
+#   sudo python3 -m venv .venv
+#   sudo .venv/bin/pip install powerpanel-gateway       # or: pip install <wheel>
+#   sudo mkdir -p /var/lib/powerpanel-gateway
+#   sudoedit /etc/powerpanel-gateway.env                # set the token (see below)
+#   sudo cp deploy/systemd/powerpanel-gateway.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now powerpanel-gateway
+#
+# /etc/powerpanel-gateway.env (chmod 600):
+#   POWERPANEL_GATEWAY_API_TOKEN=<long-random-token>
+#   POWERPANEL_GATEWAY_MOCK=0
+#   POWERPANEL_GATEWAY_LOG_LEVEL=INFO
+#
+# PowerPanel's own pwrstatd.service provides the daemon; we order after it.
+[Unit]
+Description=PowerPanel Gateway (CyberPower UPS REST API)
+Documentation=https://github.com/powerpanel-gateway/powerpanel-gateway
+After=network-online.target pwrstatd.service
+Wants=network-online.target
+Requires=pwrstatd.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/powerpanel-gateway.env
+Environment=POWERPANEL_GATEWAY_DATA_DIR=/var/lib/powerpanel-gateway
+Environment=POWERPANEL_GATEWAY_HOST=0.0.0.0
+Environment=POWERPANEL_GATEWAY_PORT=8099
+ExecStart=/opt/powerpanel-gateway/.venv/bin/python -m uvicorn powerpanel_gateway.main:app --host 0.0.0.0 --port 8099
+Restart=on-failure
+RestartSec=5
+# pwrstat usually requires root to reach the daemon socket / USB device.
+User=root
+StateDirectory=powerpanel-gateway
+
+[Install]
+WantedBy=multi-user.target

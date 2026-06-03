@@ -33,6 +33,21 @@ this is the first place to look.
   in this repository or its container image. The add-on/image expects the user
   to supply the `.deb`/`.rpm`/tarball, or to run in mock mode. See
   `addon-repository/powerpanel_gateway/DOCS.md`.
+- PowerPanel is **two** components: the `pwrstatd` daemon (owns the USB link) and
+  the `pwrstat` CLI (a client of the daemon). Real mode requires **both** to be
+  running. The standalone deploy image and the add-on start `pwrstatd` for you;
+  the host/systemd path relies on CyberPower's own `pwrstatd.service`.
+- PowerPanel binaries are built for **glibc**. The Home Assistant add-on base is
+  **Alpine (musl)**, so real mode generally requires the Debian-based
+  `deploy/` image or a native host install rather than the add-on.
+
+## Where the UPS is connected
+
+- The gateway must run on the host that physically has the UPS on USB. When that
+  host is **not** the Home Assistant machine (common with Home Assistant OS), the
+  backend runs on the UPS machine and the Home Assistant integration connects to
+  it over the network (with an API token). The add-on is only appropriate when
+  the UPS is on the Home Assistant host itself.
 
 ## USB access
 

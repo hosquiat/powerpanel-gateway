@@ -6,6 +6,30 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Standalone deployment kit** (`deploy/`) for running the gateway on a machine
+  other than the Home Assistant host (the common Home Assistant OS case): a
+  Debian-based image (where CyberPower PowerPanel installs cleanly), a
+  `docker-compose.yml` with USB passthrough and token auth, a systemd unit for
+  native host installs, and a `README` covering the topology end-to-end.
+- The add-on and deploy entrypoints now start the **`pwrstatd` daemon** in real
+  mode (`start_pwrstatd` add-on option, default on); `pwrstat` alone is only a
+  client.
+
+### Fixed
+
+- Add-on `Dockerfile` now gives `BUILD_FROM` a default base image, so a plain
+  `docker build` works locally instead of failing on a blank base name.
+- `run.sh` works without an add-on `options.json`, so the documented
+  `docker run -e POWERPANEL_GATEWAY_MOCK=1` starts correctly as a plain container.
+
+### Changed
+
+- Docs clarified: real-UPS mode prefers the Debian deploy image / host install
+  because the Alpine add-on base (musl) is incompatible with PowerPanel's glibc
+  binaries; the misleading "run PowerPanel on the host" add-on note was corrected.
+
 ## [0.1.0] - 2026-06-02
 
 ### Added

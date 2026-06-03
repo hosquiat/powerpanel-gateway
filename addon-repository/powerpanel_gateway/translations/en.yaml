@@ -23,6 +23,9 @@ configuration:
   pwrstat_path:
     name: pwrstat path
     description: Path to the CyberPower pwrstat binary (real mode only).
+  start_pwrstatd:
+    name: Start pwrstatd
+    description: Start the CyberPower pwrstatd daemon inside the add-on (real mode only). Requires a glibc-compatible PowerPanel build.
   email:
     name: Email alerts
     description: SMTP settings and which events trigger an email.

@@ -35,27 +35,42 @@ Set `mock_mode: true`, start the add-on, open the Web UI, and use the
 **Simulator** tab to trigger power failure, low battery, restore, and comm-lost
 scenarios. Everything (events, emails, shutdown preview) works end-to-end.
 
-## Real UPS mode
+## Where is the UPS plugged in?
+
+This add-on only makes sense for the real UPS when the UPS is plugged into the
+**same host that runs this add-on** (i.e. your Home Assistant machine).
+
+- **UPS on a *different* machine** (very common with Home Assistant OS): do **not**
+  use this add-on for the backend. Run the gateway on the machine that has the
+  UPS using the standalone deployment kit, and install only the *integration* on
+  Home Assistant. See `deploy/README.md` in the repository.
+- **UPS on this Home Assistant host:** continue below.
+
+## Real UPS mode (UPS on this host)
 
 CyberPower PowerPanel for Linux is **proprietary** and is **not** included in
-this image. You have two supported paths:
+this image.
 
-### Option A — Build a custom image with PowerPanel
+> Important: this add-on's base image is **Alpine (musl)**. CyberPower PowerPanel
+> ships **glibc** binaries, which generally will not run on Alpine. If you cannot
+> get a glibc-compatible PowerPanel working here, use the Debian-based standalone
+> deploy image (`deploy/README.md`) on this host instead and point the integration
+> at it locally.
+
+To attempt real mode in the add-on:
 
 1. Download the PowerPanel for Linux package from CyberPower for your platform.
 2. Place it in the add-on build context next to the `Dockerfile`.
 3. Uncomment the install line in the `Dockerfile` (adjust for `.deb`/`.rpm`/tarball)
    and rebuild the add-on.
-4. Set `mock_mode: false` and ensure `pwrstat_path` points at the installed binary
-   (usually `pwrstat`).
+4. Set `mock_mode: false`, keep `start_pwrstatd: true` (the add-on starts the
+   `pwrstatd` daemon for you), and ensure `pwrstat_path` points at the installed
+   binary (usually `pwrstat`).
 
-### Option B — Run PowerPanel on the host
-
-If `pwrstatd` already runs on your host and exposes `pwrstat`, you can mount it in.
-This is host-specific and unsupported across all installs; Option A is preferred.
-
-When `pwrstat` is unavailable, the gateway reports `communication_lost` rather
-than crashing, and the add-on log explains how to add PowerPanel.
+`pwrstat` is only a client; the gateway/add-on also needs the **`pwrstatd`
+daemon** running, which `start_pwrstatd` handles. When `pwrstat`/`pwrstatd` are
+unavailable, the gateway reports `communication_lost` rather than crashing, and
+the add-on log explains how to add PowerPanel.
 
 ## USB access
 

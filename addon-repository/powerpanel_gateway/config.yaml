@@ -49,6 +49,7 @@ options:
   home_assistant_url: ""
   api_token: ""
   pwrstat_path: pwrstat
+  start_pwrstatd: true
   email:
     enabled: false
     smtp_host: ""
@@ -82,6 +83,7 @@ schema:
   home_assistant_url: str?
   api_token: password?
   pwrstat_path: str
+  start_pwrstatd: bool
   email:
     enabled: bool
     smtp_host: str?

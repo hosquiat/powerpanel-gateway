@@ -49,6 +49,7 @@ addon-repository/            Home Assistant add-on (backend lives in rootfs/app)
   powerpanel_gateway/
     rootfs/app/powerpanel_gateway/   ← the importable Python package + web UI
 custom_components/powerpanel_gateway/  Home Assistant custom integration
+deploy/                      Standalone deploy kit (Debian image, compose, systemd)
 tests/                       Backend + integration tests
 examples/                    Automations, dashboard card, sample pwrstat output
 docs/                        ASSUMPTIONS.md and images
@@ -58,6 +59,22 @@ The Python package has a single home (`addon-repository/.../rootfs/app/powerpane
 and is made importable for dev/tests via `pyproject.toml`.
 
 ---
+
+## Deployment topologies
+
+Pick based on **where the UPS is plugged in**:
+
+| Your situation | Run the backend as | Install on Home Assistant |
+| --- | --- | --- |
+| UPS on the **Home Assistant host** | the **add-on** (below) | the integration |
+| UPS on a **separate machine** (e.g. you run Home Assistant OS) | the **standalone deploy image / host service** on that machine — see [`deploy/README.md`](deploy/README.md) | the integration only, pointed at that machine's IP:8099 (set an API token) |
+| Just trying it out | either, in **mock mode** | the integration (optional) |
+
+> Note: the **add-on image is Alpine (musl)** and CyberPower PowerPanel ships
+> **glibc** binaries, so real-UPS mode is best served by the **Debian-based deploy
+> image** in `deploy/` (or a native host install). The add-on is ideal for mock
+> mode and for the case where the UPS is on the HA host with a glibc-compatible
+> PowerPanel.
 
 ## Install
 

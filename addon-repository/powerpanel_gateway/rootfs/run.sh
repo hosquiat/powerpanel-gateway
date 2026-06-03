@@ -24,6 +24,7 @@ if bashio::fs.file_exists '/data/options.json'; then
     export POWERPANEL_GATEWAY_MOCK="$(bashio::config 'mock_mode')"
     export POWERPANEL_GATEWAY_LOG_LEVEL="$(bashio::config 'log_level' | tr '[:lower:]' '[:upper:]')"
     export POWERPANEL_GATEWAY_PWRSTAT_PATH="$(bashio::config 'pwrstat_path')"
+    export POWERPANEL_GATEWAY_START_PWRSTATD="$(bashio::config 'start_pwrstatd')"
     if bashio::config.has_value 'api_token'; then
         export POWERPANEL_GATEWAY_API_TOKEN="$(bashio::config 'api_token')"
     fi
@@ -107,10 +108,21 @@ if [ "${POWERPANEL_GATEWAY_MOCK}" = "true" ] || [ "${POWERPANEL_GATEWAY_MOCK}" =
     bashio::log.warning "Starting in MOCK mode (no real UPS required)."
 else
     PWRSTAT_BIN="${POWERPANEL_GATEWAY_PWRSTAT_PATH:-pwrstat}"
-    if ! command -v "${PWRSTAT_BIN}" >/dev/null 2>&1; then
+    if command -v "${PWRSTAT_BIN}" >/dev/null 2>&1; then
+        # `pwrstat` is only a client; the `pwrstatd` daemon must run alongside it
+        # and is what actually owns the USB connection to the UPS.
+        if command -v pwrstatd >/dev/null 2>&1 \
+           && [ "${POWERPANEL_GATEWAY_START_PWRSTATD:-true}" = "true" ]; then
+            bashio::log.info "Starting pwrstatd daemon..."
+            pwrstatd || bashio::log.warning "pwrstatd failed to start; check USB access."
+            sleep 2
+        fi
+    else
         bashio::log.warning "pwrstat not found at '${PWRSTAT_BIN}'."
         bashio::log.warning "Gateway will report 'communication_lost' until PowerPanel is installed."
-        bashio::log.warning "See DOCS.md -> 'Real UPS mode' to add CyberPower PowerPanel."
+        bashio::log.warning "NOTE: this add-on base is Alpine (musl); CyberPower PowerPanel ships"
+        bashio::log.warning "glibc binaries, so real mode is best run as a standalone deploy image"
+        bashio::log.warning "or a host install. See DOCS.md and deploy/README.md."
     fi
 fi
 
