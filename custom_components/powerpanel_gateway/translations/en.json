@@ -1,0 +1,125 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to PowerPanel Gateway",
+        "description": "Enter the address of your PowerPanel Gateway add-on or server.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "ssl": "Use HTTPS",
+          "api_token": "API token (optional)",
+          "poll_interval_seconds": "Poll interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect. Check the host, port and that the gateway is running.",
+      "invalid_auth": "Authentication failed. Check the API token.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This gateway is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PowerPanel Gateway options",
+        "data": {
+          "poll_interval_seconds": "Poll interval (seconds)",
+          "api_token": "API token (optional)"
+        }
+      }
+    }
+  },
+  "issues": {
+    "auth_failed": {
+      "title": "PowerPanel Gateway authentication failed",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Authentication failed",
+            "description": "The gateway rejected the API token. Update the token in the integration options, then confirm to dismiss this issue."
+          }
+        }
+      }
+    },
+    "cannot_connect": {
+      "title": "Cannot reach PowerPanel Gateway",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Cannot connect",
+            "description": "Home Assistant cannot reach the gateway. Verify the add-on/server is running and reachable, then confirm to dismiss this issue."
+          }
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ups_state": {
+        "name": "UPS state",
+        "state": {
+          "normal": "Normal",
+          "on_battery": "On battery",
+          "low_battery": "Low battery",
+          "power_restored": "Power restored",
+          "self_test": "Self-test",
+          "fault": "Fault",
+          "communication_lost": "Communication lost",
+          "unknown": "Unknown"
+        }
+      },
+      "ups_battery_capacity": { "name": "Battery capacity" },
+      "ups_remaining_runtime": { "name": "Remaining runtime" },
+      "ups_load_percent": { "name": "Load" },
+      "ups_load_watts": { "name": "Load power" },
+      "ups_utility_voltage": { "name": "Utility voltage" },
+      "ups_output_voltage": { "name": "Output voltage" },
+      "ups_battery_voltage": { "name": "Battery voltage" },
+      "ups_frequency": { "name": "Frequency" },
+      "ups_last_power_event": { "name": "Last power event" },
+      "ups_last_self_test_result": { "name": "Last self-test result" },
+      "ups_estimated_shutdown_time": { "name": "Estimated shutdown time" }
+    },
+    "binary_sensor": {
+      "ups_on_battery": { "name": "On battery" },
+      "ups_low_battery": { "name": "Low battery" },
+      "ups_utility_power_present": { "name": "Utility power present" },
+      "ups_needs_attention": { "name": "Needs attention" },
+      "ups_communication_ok": { "name": "Communication OK" }
+    },
+    "button": {
+      "ups_refresh_status": { "name": "Refresh status" },
+      "ups_run_self_test": { "name": "Run self-test" },
+      "ups_test_email": { "name": "Test email" },
+      "ups_export_diagnostics": { "name": "Export diagnostics" }
+    },
+    "switch": {
+      "ups_email_alerts": { "name": "Email alerts" },
+      "ups_shutdown_policy": { "name": "Shutdown policy" }
+    }
+  },
+  "services": {
+    "run_self_test": { "name": "Run self-test", "description": "Ask the UPS to run a battery self-test." },
+    "send_test_email": { "name": "Send test email", "description": "Send a test email using the gateway's SMTP configuration." },
+    "simulate": {
+      "name": "Simulate scenario",
+      "description": "Drive the simulated UPS (mock mode only).",
+      "fields": {
+        "scenario": { "name": "Scenario", "description": "Which scenario to simulate." }
+      }
+    },
+    "set_shutdown_policy": {
+      "name": "Set shutdown policy",
+      "description": "Update the host shutdown policy on the gateway.",
+      "fields": {
+        "enabled": { "name": "Enabled", "description": "Enable or disable the shutdown policy." },
+        "dry_run": { "name": "Dry run", "description": "When on, the gateway never shuts down the host." },
+        "shutdown_after_minutes_on_battery": { "name": "Shutdown after minutes on battery", "description": "Trigger after the UPS has been on battery this long." }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+
+The UPS information shows as following:
+
+	Properties:
+		Model Name................... CP1500PFCLCD
+		Firmware Number............. CR01803BIA3
+		Rating Voltage.............. 120 V
+		Rating Power................ 900 Watt(1500 VA)
+
+	Current UPS status:
+		State........................ Normal
+		Power Supply by.............. Utility Power
+		Utility Voltage.............. 121 V
+		Output Voltage.............. 121 V
+		Battery Capacity............ 100 %
+		Remaining Runtime........... 47 min.
+		Load........................ 86 Watt(10 %)
+		Line Interaction............ None
+		Test Result................. Passed at 2026/05/01 12:00:03
+		Last Power Event............ None
+

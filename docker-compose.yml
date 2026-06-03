@@ -1,0 +1,46 @@
+# docker-compose for local development of the powerpanel-gateway backend.
+#
+# Two profiles are provided:
+#   * mock  (default) -> no UPS required, serves simulated data
+#   * real           -> talks to a real CyberPower UPS over USB (requires
+#                       CyberPower PowerPanel installed in the image; see DOCS)
+#
+# Usage:
+#   docker compose up gateway-mock
+#   docker compose --profile real up gateway-real
+services:
+  gateway-mock:
+    build:
+      context: ./addon-repository/powerpanel_gateway
+    image: powerpanel-gateway:dev
+    environment:
+      POWERPANEL_GATEWAY_MOCK: "1"
+      POWERPANEL_GATEWAY_LOG_LEVEL: "INFO"
+    ports:
+      - "8099:8099"
+    volumes:
+      - gateway-data:/data
+    restart: unless-stopped
+
+  gateway-real:
+    profiles: ["real"]
+    build:
+      context: ./addon-repository/powerpanel_gateway
+    image: powerpanel-gateway:dev
+    environment:
+      POWERPANEL_GATEWAY_MOCK: "0"
+      POWERPANEL_GATEWAY_LOG_LEVEL: "INFO"
+    ports:
+      - "8099:8099"
+    volumes:
+      - gateway-data:/data
+    # PowerPanel needs access to the USB HID device exposed by the UPS.
+    # Adjust the device path to match your host (see DOCS.md).
+    devices:
+      - "/dev/usb/hiddev0:/dev/usb/hiddev0"
+    # Some UPS/PowerPanel combos require broader access; uncomment if needed:
+    # privileged: true
+    restart: unless-stopped
+
+volumes:
+  gateway-data:

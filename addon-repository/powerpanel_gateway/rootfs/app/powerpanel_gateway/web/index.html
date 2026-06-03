@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PowerPanel Gateway</title>
+    <!--
+      This is a dependency-free, build-free UI served directly by the backend so
+      it works behind Home Assistant Ingress with no Node toolchain in the image.
+      All API calls use RELATIVE URLs so the Ingress path prefix is respected.
+      A Vite scaffold lives in ./src for anyone who wants a richer SPA.
+    -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">⚡</span>
+        <span>PowerPanel Gateway</span>
+      </div>
+      <div class="topbar-right">
+        <span id="conn-indicator" class="pill pill-muted" title="Event stream">● live</span>
+        <span id="version" class="muted"></span>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="status" class="tab active">Live Status</button>
+      <button data-tab="events" class="tab">Events</button>
+      <button data-tab="email" class="tab">Email Alerts</button>
+      <button data-tab="shutdown" class="tab">Shutdown Policy</button>
+      <button data-tab="diagnostics" class="tab">Diagnostics</button>
+      <button data-tab="simulator" class="tab" id="tab-simulator" hidden>Simulator</button>
+    </nav>
+
+    <main>
+      <!-- Live Status -->
+      <section id="panel-status" class="panel active">
+        <div class="state-badge-row">
+          <span id="state-badge" class="state-badge state-unknown">UNKNOWN</span>
+          <span id="updated-at" class="muted"></span>
+        </div>
+        <div class="cards">
+          <div class="card"><div class="card-label">Battery</div><div id="m-battery" class="card-value">–</div></div>
+          <div class="card"><div class="card-label">Runtime</div><div id="m-runtime" class="card-value">–</div></div>
+          <div class="card"><div class="card-label">Load</div><div id="m-load" class="card-value">–</div></div>
+          <div class="card"><div class="card-label">Utility Voltage</div><div id="m-utility" class="card-value">–</div></div>
+          <div class="card"><div class="card-label">Output Voltage</div><div id="m-output" class="card-value">–</div></div>
+          <div class="card"><div class="card-label">Model</div><div id="m-model" class="card-value">–</div></div>
+        </div>
+        <div class="actions">
+          <button id="btn-refresh" class="btn">Refresh</button>
+          <button id="btn-selftest" class="btn">Run self-test</button>
+          <button id="btn-mute" class="btn">Mute alarm</button>
+        </div>
+      </section>
+
+      <!-- Events -->
+      <section id="panel-events" class="panel">
+        <div class="row">
+          <label>Filter:
+            <select id="event-filter"><option value="">all types</option></select>
+          </label>
+          <button id="btn-export-events" class="btn">Export JSON</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Battery</th></tr></thead>
+          <tbody id="events-body"></tbody>
+        </table>
+      </section>
+
+      <!-- Email Alerts -->
+      <section id="panel-email" class="panel">
+        <form id="email-form" class="form">
+          <label class="check"><input type="checkbox" name="enabled" /> Enable email alerts</label>
+          <div class="grid2">
+            <label>SMTP host <input name="smtp_host" /></label>
+            <label>SMTP port <input name="smtp_port" type="number" value="587" /></label>
+            <label>Username <input name="smtp_username" /></label>
+            <label>Password <input name="smtp_password" type="password" placeholder="(unchanged)" /></label>
+            <label>From <input name="smtp_from" /></label>
+            <label>To (comma separated) <input name="smtp_to" /></label>
+            <label class="check"><input type="checkbox" name="smtp_use_tls" /> Use STARTTLS</label>
+            <label>Cooldown (min) <input name="cooldown_minutes" type="number" value="15" /></label>
+          </div>
+          <fieldset>
+            <legend>Send on</legend>
+            <label class="check"><input type="checkbox" name="send_power_failure" /> Power failure</label>
+            <label class="check"><input type="checkbox" name="send_power_restored" /> Power restored</label>
+            <label class="check"><input type="checkbox" name="send_low_battery" /> Low battery</label>
+            <label class="check"><input type="checkbox" name="send_shutdown_pending" /> Shutdown pending</label>
+            <label class="check"><input type="checkbox" name="send_comm_lost" /> Comm lost</label>
+            <label class="check"><input type="checkbox" name="send_daily_summary" /> Daily summary</label>
+          </fieldset>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" id="btn-test-email" class="btn">Send test email</button>
+          </div>
+          <p id="email-status" class="muted"></p>
+        </form>
+      </section>
+
+      <!-- Shutdown Policy -->
+      <section id="panel-shutdown" class="panel">
+        <div id="dry-run-warning" class="warning">
+          Dry-run is ON by default. The gateway will never shut down the host while dry-run is enabled.
+        </div>
+        <form id="shutdown-form" class="form">
+          <label class="check"><input type="checkbox" name="enabled" /> Enable shutdown policy</label>
+          <label class="check"><input type="checkbox" name="dry_run" /> Dry-run (recommended)</label>
+          <div class="grid2">
+            <label>Shutdown after minutes on battery <input name="shutdown_after_minutes_on_battery" type="number" /></label>
+            <label>Shutdown below battery % <input name="shutdown_below_battery_percent" type="number" /></label>
+            <label>Shutdown below runtime (min) <input name="shutdown_below_runtime_minutes" type="number" /></label>
+            <label>Shutdown command <input name="shutdown_command" /></label>
+          </div>
+          <div class="actions"><button type="submit" class="btn btn-primary">Save</button></div>
+        </form>
+        <div class="preview">
+          <h3>What would happen now</h3>
+          <pre id="shutdown-preview">–</pre>
+        </div>
+      </section>
+
+      <!-- Diagnostics -->
+      <section id="panel-diagnostics" class="panel">
+        <div class="actions">
+          <button id="btn-refresh-diag" class="btn">Refresh</button>
+          <button id="btn-download-diag" class="btn">Download diagnostics JSON</button>
+        </div>
+        <h3>Version / device</h3>
+        <pre id="diag-meta">–</pre>
+        <h3>Raw pwrstat output</h3>
+        <pre id="diag-raw">–</pre>
+        <h3>Parsed fields</h3>
+        <pre id="diag-parsed">–</pre>
+      </section>
+
+      <!-- Simulator -->
+      <section id="panel-simulator" class="panel">
+        <p class="muted">Mock mode is enabled. Drive the simulated UPS:</p>
+        <div class="actions wrap">
+          <button class="btn sim" data-scenario="normal">Normal</button>
+          <button class="btn sim" data-scenario="power_failure">Power failure</button>
+          <button class="btn sim" data-scenario="low_battery">Low battery</button>
+          <button class="btn sim" data-scenario="power_restored">Power restored</button>
+          <button class="btn sim" data-scenario="communication_lost">Comm lost</button>
+          <button class="btn sim" data-scenario="self_test_failure">Self-test fail</button>
+        </div>
+        <p id="sim-status" class="muted"></p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

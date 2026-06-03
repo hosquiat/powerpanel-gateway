@@ -1,0 +1,47 @@
+run_self_test:
+  name: Run self-test
+  description: Ask the UPS to run a battery self-test.
+
+send_test_email:
+  name: Send test email
+  description: Send a test email using the gateway's SMTP configuration.
+
+simulate:
+  name: Simulate scenario
+  description: Drive the simulated UPS (mock mode only).
+  fields:
+    scenario:
+      name: Scenario
+      description: Which scenario to simulate.
+      required: true
+      selector:
+        select:
+          options:
+            - normal
+            - power_failure
+            - low_battery
+            - power_restored
+            - communication_lost
+
+set_shutdown_policy:
+  name: Set shutdown policy
+  description: Update the host shutdown policy on the gateway.
+  fields:
+    enabled:
+      name: Enabled
+      description: Enable or disable the shutdown policy.
+      selector:
+        boolean:
+    dry_run:
+      name: Dry run
+      description: When on, the gateway only reports what it would do and never shuts down the host.
+      selector:
+        boolean:
+    shutdown_after_minutes_on_battery:
+      name: Shutdown after minutes on battery
+      description: Trigger after the UPS has been on battery this long.
+      selector:
+        number:
+          min: 1
+          max: 240
+          unit_of_measurement: min

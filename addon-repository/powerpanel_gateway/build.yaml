@@ -1,0 +1,11 @@
+# Per-arch base images for the add-on build.
+# Uses the official Home Assistant Python base images.
+build_from:
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.12-alpine3.20
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.12-alpine3.20
+  armv7: ghcr.io/home-assistant/armv7-base-python:3.12-alpine3.20
+labels:
+  org.opencontainers.image.title: PowerPanel Gateway
+  org.opencontainers.image.source: https://github.com/powerpanel-gateway/powerpanel-gateway
+  org.opencontainers.image.licenses: GPL-3.0-or-later
+args: {}

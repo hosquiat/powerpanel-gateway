@@ -1,0 +1,120 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "powerpanel-gateway"
+version = "0.1.0"
+description = "CyberPower PowerPanel-native gateway: a typed, tested REST API + event stream for monitoring a CyberPower UPS, with a Home Assistant add-on and custom integration."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "powerpanel-gateway contributors" }]
+keywords = ["cyberpower", "ups", "pwrstat", "powerpanel", "home-assistant", "fastapi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Monitoring",
+]
+
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "httpx>=0.27",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "asgi-lifespan>=2.1",
+    "types-requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/powerpanel-gateway/powerpanel-gateway"
+Repository = "https://github.com/powerpanel-gateway/powerpanel-gateway"
+Issues = "https://github.com/powerpanel-gateway/powerpanel-gateway/issues"
+
+[project.scripts]
+powerpanel-gateway = "powerpanel_gateway.main:run"
+
+[tool.setuptools]
+package-dir = { "" = "addon-repository/powerpanel_gateway/rootfs/app" }
+
+[tool.setuptools.packages.find]
+where = ["addon-repository/powerpanel_gateway/rootfs/app"]
+include = ["powerpanel_gateway*"]
+
+[tool.setuptools.package-data]
+# Ship the static web UI with the package so `main:app` serves it from a wheel.
+powerpanel_gateway = [
+    "web/*.html",
+    "web/*.css",
+    "web/*.js",
+    "web/*.json",
+    "web/*.ts",
+    "web/src/*",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["addon-repository/powerpanel_gateway/rootfs/app", "custom_components", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "C4", "SIM", "RUF"]
+ignore = ["B008"]  # FastAPI uses function calls in argument defaults (Depends/Query)
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+# This file deliberately imports after pytest.importorskip guards.
+"tests/test_integration_config_flow.py" = ["E402", "I001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["powerpanel_gateway"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+mypy_path = "addon-repository/powerpanel_gateway/rootfs/app"
+explicit_package_bases = true
+# Home Assistant is not installed in the gateway dev env; the integration and the
+# HA-dependent config-flow test are type-checked separately in CI's HA job.
+exclude = '(custom_components/|tests/test_integration_config_flow\.py)'
+follow_imports = "silent"
+
+[[tool.mypy.overrides]]
+module = ["uvicorn.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["addon-repository/powerpanel_gateway/rootfs/app"]
+filterwarnings = [
+    "error::DeprecationWarning",
+    # Starlette's TestClient emits its own deprecation about httpx; not ours.
+    "ignore::DeprecationWarning:starlette.*",
+    "ignore::DeprecationWarning:httpx.*",
+]
+
+[tool.coverage.run]
+source = ["powerpanel_gateway"]
+branch = true

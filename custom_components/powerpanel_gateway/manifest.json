@@ -1,0 +1,14 @@
+{
+  "domain": "powerpanel_gateway",
+  "name": "PowerPanel Gateway",
+  "version": "0.1.0",
+  "documentation": "https://github.com/powerpanel-gateway/powerpanel-gateway",
+  "issue_tracker": "https://github.com/powerpanel-gateway/powerpanel-gateway/issues",
+  "codeowners": ["@powerpanel-gateway"],
+  "config_flow": true,
+  "dependencies": [],
+  "after_dependencies": ["hassio"],
+  "requirements": [],
+  "iot_class": "local_polling",
+  "integration_type": "service"
+}

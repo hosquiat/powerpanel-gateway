@@ -1,0 +1,33 @@
+configuration:
+  mock_mode:
+    name: Mock mode
+    description: Serve a simulated UPS. No hardware or PowerPanel required. Great for trying the add-on.
+  log_level:
+    name: Log level
+    description: Verbosity of add-on logs.
+  poll_interval_seconds:
+    name: Poll interval (seconds)
+    description: How often the gateway reads UPS status.
+  low_battery_percent:
+    name: Low battery threshold (%)
+    description: Battery percentage at or below which the UPS is considered low.
+  critical_battery_percent:
+    name: Critical battery threshold (%)
+    description: Battery percentage at or below which the UPS is considered critical.
+  home_assistant_url:
+    name: Home Assistant URL
+    description: Optional URL included in alert emails so you can jump straight to HA.
+  api_token:
+    name: API token
+    description: Optional bearer token to protect the REST API. Leave empty when using Ingress only.
+  pwrstat_path:
+    name: pwrstat path
+    description: Path to the CyberPower pwrstat binary (real mode only).
+  email:
+    name: Email alerts
+    description: SMTP settings and which events trigger an email.
+  shutdown:
+    name: Shutdown policy
+    description: When (and whether) to shut down the host on prolonged outage. Dry-run is on by default and must be turned off explicitly.
+network:
+  8099/tcp: REST API + event stream (optional; not needed for Ingress)

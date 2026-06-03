@@ -1,0 +1,59 @@
+# Example Lovelace dashboard card for the powerpanel_gateway integration.
+# Paste into a dashboard (raw config / YAML mode). Adjust entity ids as needed.
+type: vertical-stack
+cards:
+  - type: entities
+    title: CyberPower UPS
+    state_color: true
+    entities:
+      - entity: sensor.ups_state
+        name: State
+      - entity: binary_sensor.ups_on_battery
+        name: On battery
+      - entity: binary_sensor.ups_utility_power_present
+        name: Utility power
+      - entity: binary_sensor.ups_communication_ok
+        name: Communication
+      - entity: binary_sensor.ups_needs_attention
+        name: Needs attention
+
+  - type: glance
+    title: Readings
+    columns: 3
+    entities:
+      - entity: sensor.ups_battery_capacity
+        name: Battery
+      - entity: sensor.ups_remaining_runtime
+        name: Runtime
+      - entity: sensor.ups_load_percent
+        name: Load
+      - entity: sensor.ups_utility_voltage
+        name: Utility V
+      - entity: sensor.ups_output_voltage
+        name: Output V
+      - entity: sensor.ups_load_watts
+        name: Watts
+
+  - type: gauge
+    entity: sensor.ups_battery_capacity
+    name: Battery
+    min: 0
+    max: 100
+    severity:
+      green: 60
+      yellow: 30
+      red: 0
+
+  - type: entities
+    title: Controls
+    entities:
+      - entity: switch.ups_email_alerts
+        name: Email alerts
+      - entity: switch.ups_shutdown_policy
+        name: Shutdown policy
+      - entity: button.ups_refresh_status
+        name: Refresh
+      - entity: button.ups_run_self_test
+        name: Run self-test
+      - entity: button.ups_test_email
+        name: Test email

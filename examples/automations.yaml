@@ -1,0 +1,92 @@
+# Example automations for the powerpanel_gateway integration.
+#
+# Copy the ones you want into your Home Assistant automations, adjusting entity
+# ids, recipients, and target devices to match your setup. Entity ids assume a
+# single gateway; if you have more than one, disambiguate with the suffix HA adds.
+
+# 1) Send email when power fails.
+#    The gateway can also send this email itself; this shows the HA-side event.
+- alias: "UPS - Email on power failure"
+  trigger:
+    - platform: event
+      event_type: powerpanel_gateway_power_failure
+  action:
+    - service: notify.smtp_notifier  # replace with your notify service
+      data:
+        title: "⚡ Power failure"
+        message: >-
+          UPS is on battery. Battery {{ trigger.event.data.battery_percent }}%,
+          ~{{ trigger.event.data.remaining_runtime_minutes }} min runtime.
+
+# 2) Send an outage summary when power returns.
+- alias: "UPS - Outage summary on power restored"
+  trigger:
+    - platform: event
+      event_type: powerpanel_gateway_power_restored
+  action:
+    - service: notify.smtp_notifier
+      data:
+        title: "✅ Power restored"
+        message: >-
+          Utility power is back. Battery now
+          {{ states('sensor.ups_battery_capacity') }}%.
+
+# 3) Turn off nonessential smart plugs when on battery for 2 minutes.
+- alias: "UPS - Shed nonessential load after 2 min on battery"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.ups_on_battery
+      to: "on"
+      for: "00:02:00"
+  action:
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.living_room_lamp
+          - switch.media_center
+
+# 4) Shut down the NAS when battery is below 40%.
+- alias: "UPS - Shutdown NAS below 40%"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.ups_battery_capacity
+      below: 40
+  condition:
+    - condition: state
+      entity_id: binary_sensor.ups_on_battery
+      state: "on"
+  action:
+    - service: button.press
+      target:
+        entity_id: button.nas_safe_shutdown  # your NAS integration's shutdown
+
+# 5) Notify phone when runtime drops below 10 minutes.
+- alias: "UPS - Notify phone on low runtime"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.ups_remaining_runtime
+      below: 10
+  condition:
+    - condition: state
+      entity_id: binary_sensor.ups_on_battery
+      state: "on"
+  action:
+    - service: notify.mobile_app_my_phone  # replace with your device
+      data:
+        title: "⚠️ UPS runtime low"
+        message: "Only {{ states('sensor.ups_remaining_runtime') }} min of runtime left."
+
+# 6) Alert if UPS communication is lost.
+- alias: "UPS - Alert on communication lost"
+  trigger:
+    - platform: event
+      event_type: powerpanel_gateway_communication_lost
+    - platform: state
+      entity_id: binary_sensor.ups_communication_ok
+      to: "off"
+      for: "00:01:00"
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "UPS communication lost"
+        message: "Home Assistant can no longer read the UPS. Check the gateway and USB connection."

@@ -1,0 +1,4 @@
+
+You may need to use 'sudo' to run this program.
+Failed to communicate with the UPS.
+Please make sure the UPS is connected and the PowerPanel daemon (pwrstatd) is running.

@@ -1,0 +1,107 @@
+# Home Assistant add-on manifest for powerpanel-gateway.
+# Schema reference: https://developers.home-assistant.io/docs/add-ons/configuration
+name: PowerPanel Gateway
+version: "0.1.0"
+slug: powerpanel_gateway
+description: >-
+  CyberPower PowerPanel-native gateway: typed REST API, event stream, email
+  alerts and a web UI for a CyberPower UPS on USB. Pairs with the
+  powerpanel_gateway Home Assistant custom integration.
+url: https://github.com/powerpanel-gateway/powerpanel-gateway
+codenotary: notary@home-assistant.io
+arch:
+  - amd64
+  - aarch64
+  - armv7
+init: false
+startup: services
+boot: auto
+
+# Web UI is exposed only through Ingress; no host port is published by default.
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:power-plug-battery
+panel_title: PowerPanel
+
+# Optional: also publish the API on the host network. Leave unset to keep the
+# gateway reachable only via Ingress (recommended / least exposure).
+ports:
+  8099/tcp: null
+ports_description:
+  8099/tcp: REST API + event stream (optional; Ingress does not require this)
+
+# USB access for the CyberPower UPS HID device. `usb: true` is the least
+# privilege that lets the PowerPanel daemon see the device on most hosts. If
+# your host needs more, see DOCS.md for the privileged fallback.
+usb: true
+devices: []
+udev: true
+
+# Persisted data (config.json + events.db) lives in the add-on's automatic
+# /data volume; no extra mapping is required.
+
+options:
+  mock_mode: false
+  log_level: info
+  poll_interval_seconds: 10
+  low_battery_percent: 20
+  critical_battery_percent: 10
+  home_assistant_url: ""
+  api_token: ""
+  pwrstat_path: pwrstat
+  email:
+    enabled: false
+    smtp_host: ""
+    smtp_port: 587
+    smtp_username: ""
+    smtp_password: ""
+    smtp_use_tls: true
+    smtp_from: ""
+    smtp_to: ""
+    cooldown_minutes: 15
+    send_power_failure: true
+    send_power_restored: true
+    send_low_battery: true
+    send_shutdown_pending: true
+    send_comm_lost: true
+    send_daily_summary: false
+  shutdown:
+    enabled: false
+    dry_run: true
+    shutdown_after_minutes_on_battery: 10
+    shutdown_below_battery_percent: 20
+    shutdown_below_runtime_minutes: 5
+    shutdown_command: "/sbin/poweroff"
+
+schema:
+  mock_mode: bool
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+  poll_interval_seconds: int(2,3600)
+  low_battery_percent: int(1,99)
+  critical_battery_percent: int(1,99)
+  home_assistant_url: str?
+  api_token: password?
+  pwrstat_path: str
+  email:
+    enabled: bool
+    smtp_host: str?
+    smtp_port: int(1,65535)
+    smtp_username: str?
+    smtp_password: password?
+    smtp_use_tls: bool
+    smtp_from: str?
+    smtp_to: str?
+    cooldown_minutes: int(0,1440)
+    send_power_failure: bool
+    send_power_restored: bool
+    send_low_battery: bool
+    send_shutdown_pending: bool
+    send_comm_lost: bool
+    send_daily_summary: bool
+  shutdown:
+    enabled: bool
+    dry_run: bool
+    shutdown_after_minutes_on_battery: int(1,240)
+    shutdown_below_battery_percent: int(1,99)
+    shutdown_below_runtime_minutes: int(1,120)
+    shutdown_command: str
