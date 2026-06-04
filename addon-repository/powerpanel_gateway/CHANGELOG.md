@@ -8,4 +8,7 @@
 - Web UI: live status, events, email alerts, shutdown policy, diagnostics, simulator.
 - SMTP email alerting with per-event toggles and cooldown.
 - Shutdown policy (dry-run by default; host shutdown never enabled implicitly).
-- USB/udev access for CyberPower PowerPanel; PowerPanel itself is user-supplied.
+- Debian-based image so CyberPower PowerPanel's `.deb` installs cleanly: drop it
+  into the add-on `vendor/` folder and rebuild (see DOCS → "Real UPS mode").
+- Starts the `pwrstatd` daemon in real mode (`start_pwrstatd` option, default on).
+- USB/udev access for the UPS; PowerPanel itself is user-supplied.

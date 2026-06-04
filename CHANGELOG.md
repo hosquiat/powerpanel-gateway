@@ -6,40 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
+## [0.1.0] - 2026-06-04
 
-- **Brand assets** in `brand/` (mark, lockup, wordmark + generated PNGs and an
-  `@2x` set for the HA brands repo). Incorporated the logo across the project:
-  real add-on `icon.png`/`logo.png`, web UI header + favicon, and README heroes;
-  the web UI accent now uses the brand green (`#1eae8e`). See `brand/README.md`.
-
-- **Standalone deployment kit** (`deploy/`) for running the gateway on a machine
-  other than the Home Assistant host (the common Home Assistant OS case): a
-  Debian-based image (where CyberPower PowerPanel installs cleanly), a
-  `docker-compose.yml` with USB passthrough and token auth, a systemd unit for
-  native host installs, and a `README` covering the topology end-to-end.
-- The add-on and deploy entrypoints now start the **`pwrstatd` daemon** in real
-  mode (`start_pwrstatd` add-on option, default on); `pwrstat` alone is only a
-  client.
-
-### Fixed
-
-- Add-on `Dockerfile` now gives `BUILD_FROM` a default base image, so a plain
-  `docker build` works locally instead of failing on a blank base name.
-- `run.sh` works without an add-on `options.json`, so the documented
-  `docker run -e POWERPANEL_GATEWAY_MOCK=1` starts correctly as a plain container.
-
-### Changed
-
-- **Add-on re-based on the Home Assistant Debian images** (`*-base-debian`) with
-  a Python venv, so CyberPower PowerPanel's glibc `.deb` installs cleanly and
-  real-UPS mode works in the add-on. Drop the `.deb` into the add-on's `vendor/`
-  folder and rebuild (`vendor/README.md`); the Dockerfile installs it via apt.
-- Docs corrected throughout: removed the misleading "run PowerPanel on the host"
-  add-on note and the now-obsolete Alpine/musl caveats; documented the `vendor/`
-  drop-in flow for both the add-on and the `deploy/` image.
-
-## [0.1.0] - 2026-06-02
+First public release.
 
 ### Added
 
@@ -50,18 +19,35 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Web UI** (dependency-free, Ingress-safe): live status, events timeline with
   filtering + JSON export, email settings + test send, shutdown policy with
   "what would happen now" preview, diagnostics, and a mock-only simulator.
-- **Home Assistant add-on**: `config.yaml`, multi-arch `Dockerfile`/`build.yaml`,
-  `run.sh`, Ingress, options schema (mock, poll interval, email, shutdown, log
-  level), USB/udev access, and docs. PowerPanel itself is user-supplied.
+- **Home Assistant add-on**: Debian-based image (so CyberPower PowerPanel's glibc
+  `.deb` installs cleanly via a `vendor/` drop-in), Ingress UI, options schema
+  (mock, poll interval, email, shutdown, log level, `start_pwrstatd`), and
+  USB/udev access. Runs in mock mode out of the box; starts the `pwrstatd` daemon
+  in real mode. PowerPanel itself is user-supplied.
+- **Standalone deployment kit** (`deploy/`) for running the gateway on a machine
+  other than the Home Assistant host (the common Home Assistant OS case): a
+  Debian image, a `docker-compose.yml` with USB passthrough and token auth, and a
+  systemd unit for native host installs, with an end-to-end topology README.
 - **Home Assistant integration**: config + options flow, DataUpdateCoordinator,
   sensors, binary sensors, buttons, switches, services, bus events, diagnostics,
   repairs, translations, and config-entry migration scaffolding.
-- **Tests**: parser, models (secret handling), emailer, REST API, and a
-  HA-dependent config-flow test (auto-skipped without HA).
+- **Brand assets** (`brand/`): mark, lockup, wordmark, generated PNGs and an
+  `@2x` set for the Home Assistant brands repo. The logo is used for the add-on
+  `icon.png`/`logo.png`, the web UI header + favicon, and the READMEs; the web UI
+  accent uses the brand green (`#1eae8e`).
 - **Examples**: automations and a Lovelace dashboard card; sample `pwrstat`
   outputs.
+- **Tests**: parser, models (secret handling), emailer, REST API, and a
+  HA-dependent config-flow test (auto-skipped without HA).
 - **CI**: ruff + mypy + pytest, HA integration tests, hassfest, HACS, and
   Dockerfile lint; tag-driven release workflow.
+
+### Notes
+
+- Tested against a CyberPower **LX1100G** over USB (full status pipeline). No
+  broad device-compatibility claims are made yet.
+- Host shutdown is disabled by default and additionally gated behind
+  `dry_run=true`; SMTP passwords are never logged or returned by the API.
 
 [Unreleased]: https://github.com/hosquiat/powerpanel-gateway/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/hosquiat/powerpanel-gateway/releases/tag/v0.1.0

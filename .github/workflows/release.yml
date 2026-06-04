@@ -6,9 +6,11 @@ on:
       - "v*.*.*"
   workflow_dispatch:
 
+# The Home Assistant add-on is built locally on the user's host at install time,
+# so this workflow does not publish container images. It runs the test gate,
+# builds the Python package, and cuts a GitHub release with the artifacts.
 permissions:
   contents: write
-  packages: write
 
 jobs:
   test:
@@ -43,31 +45,6 @@ jobs:
         with:
           name: dist
           path: dist/*
-
-  build-addon-image:
-    name: Build & publish add-on image
-    needs: test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, aarch64, armv7]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build add-on (${{ matrix.arch }})
-        uses: home-assistant/builder@master
-        with:
-          args: |
-            --${{ matrix.arch }} \
-            --target /data/addon-repository/powerpanel_gateway \
-            --image "powerpanel-gateway-${{ matrix.arch }}" \
-            --docker-hub ghcr.io/${{ github.repository_owner }} \
-            --addon
 
   github-release:
     name: Create GitHub release
