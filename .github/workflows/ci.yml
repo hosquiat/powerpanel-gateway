@@ -73,6 +73,8 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: addon-repository/powerpanel_gateway/Dockerfile
-          # PowerPanel is user-supplied; pinning apk versions across 3 arches is
-          # impractical here. Relax the version-pin and root-user rules.
-          ignore: DL3018,DL3002,DL3013
+          # DL3006: FROM uses the ARG BUILD_FROM the HA builder injects per-arch.
+          # DL3008: apt versions float (we apt-get update); pinning across arches
+          #         and the user-supplied PowerPanel .deb is impractical.
+          # DL3002/DL3013/DL3018: root user / pip / apk pinning — intentional.
+          ignore: DL3006,DL3008,DL3002,DL3013,DL3018

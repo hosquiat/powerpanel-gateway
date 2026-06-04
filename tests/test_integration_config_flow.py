@@ -25,7 +25,9 @@ from custom_components.powerpanel_gateway.const import (
     DOMAIN,
 )
 
-pytest_plugins = ["pytest_homeassistant_custom_component"]
+# Note: pytest-homeassistant-custom-component auto-registers via its entry point
+# when installed, so we do NOT declare `pytest_plugins` here (pytest only honors
+# that in the root conftest, and declaring it in a test module is a usage error).
 
 
 @pytest.fixture(autouse=True)
