@@ -113,8 +113,10 @@ else
         # and is what actually owns the USB connection to the UPS.
         if command -v pwrstatd >/dev/null 2>&1 \
            && [ "${POWERPANEL_GATEWAY_START_PWRSTATD:-true}" = "true" ]; then
-            bashio::log.info "Starting pwrstatd daemon..."
-            pwrstatd || bashio::log.warning "pwrstatd failed to start; check USB access."
+            # Background it: some PowerPanel builds run pwrstatd in the foreground,
+            # which would block the gateway (uvicorn) from ever starting.
+            bashio::log.info "Starting pwrstatd daemon (background)..."
+            pwrstatd &
             sleep 2
         fi
     else

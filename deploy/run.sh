@@ -15,8 +15,10 @@ if [ "${MOCK}" = "1" ] || [ "${MOCK}" = "true" ]; then
 else
     if command -v pwrstatd >/dev/null 2>&1; then
         # pwrstat is only a client; pwrstatd owns the USB link to the UPS.
-        echo "[run] Starting pwrstatd daemon..."
-        pwrstatd || echo "[run] WARNING: pwrstatd failed to start; check USB access/--device."
+        # Start it in the BACKGROUND: some PowerPanel builds run pwrstatd in the
+        # foreground, which would otherwise block the gateway from ever starting.
+        echo "[run] Starting pwrstatd daemon (background)..."
+        pwrstatd &
         sleep 2
     else
         echo "[run] WARNING: pwrstatd not found. Real mode needs CyberPower PowerPanel."
