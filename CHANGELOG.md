@@ -8,6 +8,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Brand assets** in `brand/` (mark, lockup, wordmark + generated PNGs and an
+  `@2x` set for the HA brands repo). Incorporated the logo across the project:
+  real add-on `icon.png`/`logo.png`, web UI header + favicon, and README heroes;
+  the web UI accent now uses the brand green (`#1eae8e`). See `brand/README.md`.
+
 - **Standalone deployment kit** (`deploy/`) for running the gateway on a machine
   other than the Home Assistant host (the common Home Assistant OS case): a
   Debian-based image (where CyberPower PowerPanel installs cleanly), a

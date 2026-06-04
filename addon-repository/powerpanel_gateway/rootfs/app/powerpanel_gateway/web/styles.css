@@ -1,14 +1,15 @@
 :root {
+  /* Palette tied to the PowerPanel Gateway brand (slate #2c4250, green #1eae8e). */
   --bg: #0f1419;
-  --panel: #1a2129;
-  --card: #222b35;
+  --panel: #1b2a35;
+  --card: #243441;
   --text: #e6edf3;
   --muted: #8b98a5;
-  --accent: #2f81f7;
-  --green: #2ea043;
+  --accent: #1eae8e;
+  --green: #1eae8e;
   --amber: #d29922;
   --red: #f85149;
-  --border: #30363d;
+  --border: #335165;
 }
 
 * { box-sizing: border-box; }
@@ -30,7 +31,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; }
-.logo { font-size: 20px; }
+.logo { width: 28px; height: 28px; display: block; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 
 .tabs { display: flex; gap: 4px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-wrap: wrap; }

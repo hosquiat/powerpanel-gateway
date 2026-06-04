@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="PowerPanel Gateway" width="420">
+</p>
+
 # PowerPanel Gateway (Home Assistant add-on)
 
 A CyberPower PowerPanel-native gateway for a UPS plugged into your Home Assistant

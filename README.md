@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/logo.png" alt="PowerPanel Gateway" width="440">
+</p>
+
 # powerpanel-gateway
 
 A CyberPower PowerPanel-native **gateway** for monitoring and managing a
