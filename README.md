@@ -70,34 +70,79 @@ Pick based on **where the UPS is plugged in**:
 | UPS on a **separate machine** (e.g. you run Home Assistant OS) | the **standalone deploy image / host service** on that machine — see [`deploy/README.md`](deploy/README.md) | the integration only, pointed at that machine's IP:8099 (set an API token) |
 | Just trying it out | either, in **mock mode** | the integration (optional) |
 
-> Note: the **add-on image is Alpine (musl)** and CyberPower PowerPanel ships
-> **glibc** binaries, so real-UPS mode is best served by the **Debian-based deploy
-> image** in `deploy/` (or a native host install). The add-on is ideal for mock
-> mode and for the case where the UPS is on the HA host with a glibc-compatible
-> PowerPanel.
+> Both the add-on and the `deploy/` image are **Debian-based (glibc)**, so
+> CyberPower PowerPanel's `.deb` installs cleanly in either — you just supply the
+> package (it is proprietary and not redistributed here).
 
 ## Install
 
-### A) Home Assistant add-on (recommended)
+Installation is two steps: **(1) deploy the backend** where the UPS is plugged
+in, then **(2) install the integration** in Home Assistant and point it at the
+backend. Pick the Step 1 path that matches your topology.
+
+### Step 1 — Deploy the backend
+
+#### Option A — Home Assistant add-on (UPS on the HA host)
 
 1. **Settings → Add-ons → Add-on Store → ⋮ → Repositories**, add:
-   `https://github.com/powerpanel-gateway/powerpanel-gateway`
+   `https://github.com/hosquiat/powerpanel-gateway`
 2. Install **PowerPanel Gateway**, optionally enable **Mock mode**, start it,
    and click **Open Web UI**.
-3. Real-UPS mode requires adding CyberPower PowerPanel to the image yourself
-   (it is proprietary; see `addon-repository/powerpanel_gateway/DOCS.md`).
+3. For a real UPS, drop your CyberPower PowerPanel `.deb` into the add-on's
+   `vendor/` folder and rebuild, then set `mock_mode: false`. Full steps:
+   `addon-repository/powerpanel_gateway/DOCS.md` → "Real UPS mode" (and
+   `vendor/README.md`). PowerPanel is proprietary and not redistributed here.
 
-### B) Home Assistant integration via HACS
+#### Option B — Standalone on the UPS machine, Docker (recommended off-host)
 
-1. HACS → **Custom repositories** → add this repo as an **Integration**.
-2. Install **PowerPanel Gateway**, restart Home Assistant.
-3. **Settings → Devices & Services → Add Integration → PowerPanel Gateway**, and
-   enter the gateway host/port (the add-on, or any host running the backend).
+Use this when the UPS is on a **different machine** than Home Assistant (the
+common Home Assistant OS case). Run these on the machine with the UPS:
 
-### C) Manual integration install
+```bash
+git clone https://github.com/hosquiat/powerpanel-gateway
+cd powerpanel-gateway/deploy
 
-Copy `custom_components/powerpanel_gateway` into your HA `config/custom_components/`,
-restart, then add the integration from the UI.
+# Real UPS: drop your CyberPower PowerPanel .deb here first (omit for mock mode)
+cp ~/Downloads/powerpanel_*.deb vendor/
+
+# Protect the API (it's exposed on the LAN, not via Ingress) and save the token
+export POWERPANEL_GATEWAY_API_TOKEN="$(openssl rand -hex 24)"
+echo "Token: $POWERPANEL_GATEWAY_API_TOKEN"
+
+docker compose up -d --build
+curl -s -H "Authorization: Bearer $POWERPANEL_GATEWAY_API_TOKEN" \
+     localhost:8099/api/status
+```
+
+If status shows `communication_lost`, confirm the USB node (`lsusb | grep -i
+cyber`, `ls -l /dev/usb/hiddev*`) and adjust `devices:` in
+`deploy/docker-compose.yml`. Full details: [`deploy/README.md`](deploy/README.md).
+
+To validate the whole pipe with no UPS: `POWERPANEL_GATEWAY_MOCK=1 docker compose up -d --build`.
+
+#### Option C — Native host install on the UPS machine (systemd, no Docker)
+
+Best when CyberPower PowerPanel is already installed and `pwrstat -status` works
+on that machine. Install the package into a venv and run it as a service — see
+the header of [`deploy/systemd/powerpanel-gateway.service`](deploy/systemd/powerpanel-gateway.service).
+
+### Step 2 — Install the Home Assistant integration
+
+Install on Home Assistant via **either**:
+
+- **HACS:** HACS → **Custom repositories** → add this repo as an **Integration**,
+  install **PowerPanel Gateway**, then restart Home Assistant.
+- **Manual:** copy `custom_components/powerpanel_gateway` into your HA
+  `config/custom_components/`, then restart.
+
+Then **Settings → Devices & Services → Add Integration → PowerPanel Gateway** and
+enter:
+
+- **Host:** the IP of the machine running the backend (or the add-on hostname if
+  you used Option A)
+- **Port:** `8099`
+- **API token:** the token from Option B/C (leave blank for the add-on via Ingress)
+- **Use HTTPS:** off unless you front the backend with a TLS reverse proxy
 
 ---
 

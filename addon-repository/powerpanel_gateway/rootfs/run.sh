@@ -120,9 +120,8 @@ else
     else
         bashio::log.warning "pwrstat not found at '${PWRSTAT_BIN}'."
         bashio::log.warning "Gateway will report 'communication_lost' until PowerPanel is installed."
-        bashio::log.warning "NOTE: this add-on base is Alpine (musl); CyberPower PowerPanel ships"
-        bashio::log.warning "glibc binaries, so real mode is best run as a standalone deploy image"
-        bashio::log.warning "or a host install. See DOCS.md and deploy/README.md."
+        bashio::log.warning "To enable real mode: drop your CyberPower PowerPanel .deb into the"
+        bashio::log.warning "add-on's vendor/ folder and rebuild. See DOCS.md -> 'Real UPS mode'."
     fi
 fi
 

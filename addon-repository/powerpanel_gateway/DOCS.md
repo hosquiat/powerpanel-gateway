@@ -49,28 +49,29 @@ This add-on only makes sense for the real UPS when the UPS is plugged into the
 ## Real UPS mode (UPS on this host)
 
 CyberPower PowerPanel for Linux is **proprietary** and is **not** included in
-this image.
+this image. The add-on image is **Debian (glibc)**, so PowerPanel's `.deb`
+installs cleanly — you just supply the package:
 
-> Important: this add-on's base image is **Alpine (musl)**. CyberPower PowerPanel
-> ships **glibc** binaries, which generally will not run on Alpine. If you cannot
-> get a glibc-compatible PowerPanel working here, use the Debian-based standalone
-> deploy image (`deploy/README.md`) on this host instead and point the integration
-> at it locally.
+1. Download "PowerPanel for Linux" (`.deb`) from CyberPower for your Home
+   Assistant host's architecture (`amd64`, `aarch64`, or `armv7`).
+2. Copy it into the add-on's `vendor/` folder:
+   ```
+   cp ~/Downloads/powerpanel_*_amd64.deb addon-repository/powerpanel_gateway/vendor/
+   ```
+   (See `vendor/README.md`.) The Dockerfile installs every `*.deb` it finds there.
+3. Rebuild the add-on: **Settings → Add-ons → PowerPanel Gateway → ⋮ → Rebuild**.
+4. In the add-on config set `mock_mode: false` and keep `start_pwrstatd: true`
+   (the add-on starts the `pwrstatd` daemon for you). Ensure `pwrstat_path` points
+   at the installed binary (usually `pwrstat`).
 
-To attempt real mode in the add-on:
-
-1. Download the PowerPanel for Linux package from CyberPower for your platform.
-2. Place it in the add-on build context next to the `Dockerfile`.
-3. Uncomment the install line in the `Dockerfile` (adjust for `.deb`/`.rpm`/tarball)
-   and rebuild the add-on.
-4. Set `mock_mode: false`, keep `start_pwrstatd: true` (the add-on starts the
-   `pwrstatd` daemon for you), and ensure `pwrstat_path` points at the installed
-   binary (usually `pwrstat`).
-
-`pwrstat` is only a client; the gateway/add-on also needs the **`pwrstatd`
-daemon** running, which `start_pwrstatd` handles. When `pwrstat`/`pwrstatd` are
+`pwrstat` is only a client; the gateway also needs the **`pwrstatd` daemon**
+running, which `start_pwrstatd` handles. When `pwrstat`/`pwrstatd` are
 unavailable, the gateway reports `communication_lost` rather than crashing, and
 the add-on log explains how to add PowerPanel.
+
+> Reminder: this add-on only fits when the UPS is on **this** Home Assistant host.
+> If the UPS is on a different machine, use the standalone deploy kit there
+> instead (see `deploy/README.md`).
 
 ## USB access
 

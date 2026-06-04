@@ -37,9 +37,9 @@ this is the first place to look.
   the `pwrstat` CLI (a client of the daemon). Real mode requires **both** to be
   running. The standalone deploy image and the add-on start `pwrstatd` for you;
   the host/systemd path relies on CyberPower's own `pwrstatd.service`.
-- PowerPanel binaries are built for **glibc**. The Home Assistant add-on base is
-  **Alpine (musl)**, so real mode generally requires the Debian-based
-  `deploy/` image or a native host install rather than the add-on.
+- PowerPanel binaries are built for **glibc**. Both the Home Assistant add-on and
+  the `deploy/` image are therefore **Debian-based** so the PowerPanel `.deb`
+  installs cleanly; the user supplies the `.deb` via a `vendor/` folder.
 
 ## Where the UPS is connected
 

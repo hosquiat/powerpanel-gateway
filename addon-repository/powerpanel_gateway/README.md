@@ -17,7 +17,7 @@ a web UI (via Ingress). Pairs with the `powerpanel_gateway` custom integration.
 
 1. Add this repository to Home Assistant:
    **Settings → Add-ons → Add-on Store → ⋮ → Repositories** and paste:
-   `https://github.com/powerpanel-gateway/powerpanel-gateway`
+   `https://github.com/hosquiat/powerpanel-gateway`
 2. Install **PowerPanel Gateway**.
 3. (Optional) Turn **Mock mode** on to explore without a UPS.
 4. Start the add-on and click **Open Web UI**.

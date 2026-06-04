@@ -42,9 +42,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/powerpanel-gateway/powerpanel-gateway"
-Repository = "https://github.com/powerpanel-gateway/powerpanel-gateway"
-Issues = "https://github.com/powerpanel-gateway/powerpanel-gateway/issues"
+Homepage = "https://github.com/hosquiat/powerpanel-gateway"
+Repository = "https://github.com/hosquiat/powerpanel-gateway"
+Issues = "https://github.com/hosquiat/powerpanel-gateway/issues"
 
 [project.scripts]
 powerpanel-gateway = "powerpanel_gateway.main:run"

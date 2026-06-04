@@ -20,7 +20,7 @@
 # PowerPanel's own pwrstatd.service provides the daemon; we order after it.
 [Unit]
 Description=PowerPanel Gateway (CyberPower UPS REST API)
-Documentation=https://github.com/powerpanel-gateway/powerpanel-gateway
+Documentation=https://github.com/hosquiat/powerpanel-gateway
 After=network-online.target pwrstatd.service
 Wants=network-online.target
 Requires=pwrstatd.service

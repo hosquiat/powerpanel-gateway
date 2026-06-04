@@ -26,9 +26,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Docs clarified: real-UPS mode prefers the Debian deploy image / host install
-  because the Alpine add-on base (musl) is incompatible with PowerPanel's glibc
-  binaries; the misleading "run PowerPanel on the host" add-on note was corrected.
+- **Add-on re-based on the Home Assistant Debian images** (`*-base-debian`) with
+  a Python venv, so CyberPower PowerPanel's glibc `.deb` installs cleanly and
+  real-UPS mode works in the add-on. Drop the `.deb` into the add-on's `vendor/`
+  folder and rebuild (`vendor/README.md`); the Dockerfile installs it via apt.
+- Docs corrected throughout: removed the misleading "run PowerPanel on the host"
+  add-on note and the now-obsolete Alpine/musl caveats; documented the `vendor/`
+  drop-in flow for both the add-on and the `deploy/` image.
 
 ## [0.1.0] - 2026-06-02
 
@@ -54,5 +58,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **CI**: ruff + mypy + pytest, HA integration tests, hassfest, HACS, and
   Dockerfile lint; tag-driven release workflow.
 
-[Unreleased]: https://github.com/powerpanel-gateway/powerpanel-gateway/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/powerpanel-gateway/powerpanel-gateway/releases/tag/v0.1.0
+[Unreleased]: https://github.com/hosquiat/powerpanel-gateway/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/hosquiat/powerpanel-gateway/releases/tag/v0.1.0

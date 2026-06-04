@@ -1,11 +1,13 @@
 # Per-arch base images for the add-on build.
-# Uses the official Home Assistant Python base images.
+# Debian (glibc) base on purpose: CyberPower PowerPanel ships glibc binaries that
+# do not run on Alpine/musl. These HA Debian base images ship bashio + s6 + jq,
+# and we install Python into a venv in the Dockerfile.
 build_from:
-  amd64: ghcr.io/home-assistant/amd64-base-python:3.12-alpine3.20
-  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.12-alpine3.20
-  armv7: ghcr.io/home-assistant/armv7-base-python:3.12-alpine3.20
+  amd64: ghcr.io/home-assistant/amd64-base-debian:bookworm
+  aarch64: ghcr.io/home-assistant/aarch64-base-debian:bookworm
+  armv7: ghcr.io/home-assistant/armv7-base-debian:bookworm
 labels:
   org.opencontainers.image.title: PowerPanel Gateway
-  org.opencontainers.image.source: https://github.com/powerpanel-gateway/powerpanel-gateway
+  org.opencontainers.image.source: https://github.com/hosquiat/powerpanel-gateway
   org.opencontainers.image.licenses: GPL-3.0-or-later
 args: {}

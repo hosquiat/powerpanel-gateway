@@ -7,7 +7,7 @@ description: >-
   CyberPower PowerPanel-native gateway: typed REST API, event stream, email
   alerts and a web UI for a CyberPower UPS on USB. Pairs with the
   powerpanel_gateway Home Assistant custom integration.
-url: https://github.com/powerpanel-gateway/powerpanel-gateway
+url: https://github.com/hosquiat/powerpanel-gateway
 codenotary: notary@home-assistant.io
 arch:
   - amd64
