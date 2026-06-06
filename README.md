@@ -16,7 +16,6 @@ and repairs.
 > Status: early (0.1.0). Local-only, no cloud. Host shutdown is **off by default**.
 
 ![status screenshot placeholder](docs/images/screenshot-status.png)
-*(Screenshots are placeholders — see `docs/images/`.)*
 
 ---
 
